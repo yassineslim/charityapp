@@ -15,7 +15,7 @@ export default function App() {
   const [dependencies, setDependencies] = useState({ web3: null, account: null, fundRaise: null, loaded: false });
 
   /**
-   * @description Use effect to load the dependencies needed by the routes to interact with the blockchain
+   * @description Utiliser l'effet pour charger les dépendances nécessaires aux routes pour interagir avec la blockchain.
    */
   useEffect(() => {
     (async function() {
@@ -32,9 +32,9 @@ export default function App() {
   }, []);
 
   /**
-   * @description Abstraction for connecting user to application;
-   * this is shown to the user if they are not initially connected
-   * on load
+   * @description pour connecter l'utilisateur à l'application ;
+   * Ceci est montré à l'utilisateur s'il n'est pas initialement connecté.
+   * chargement
    */
   async function connect() {
     await window.ethereum.request({ method: 'eth_requestAccounts' });

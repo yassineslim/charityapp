@@ -1,7 +1,7 @@
 import Web3 from "web3";
 
 /**
- * @description Script provided by the react truffle box to get web3 object
+ * @description Script fourni par la boîte à truffes react pour obtenir un objet web3
  * @returns {Object}
  */
 const getWeb3 = () =>
@@ -10,13 +10,13 @@ const getWeb3 = () =>
     if (window.ethereum) {
       const web3 = new Web3(window.ethereum);
       try {
-        // Request account access if needed
+        // Demander l'accès au compte si nécessaire
         resolve(web3);
       } catch (error) {
         reject(error);
       }
     }
-    // Legacy dapp browsers...
+    // Les anciens navigateurs de dapps...
     else if (window.web3) {
       // Use Mist/MetaMask's provider.
       const web3 = window.web3;

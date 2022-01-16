@@ -4,31 +4,31 @@ import { Container, Col, Row, Button, Modal, Form } from 'react-bootstrap'
 import getImageForFundRaise from '../utils/get-image-for-fund-raise'
 import AppContext from '../../app-context'
 
-import './FundRaise.css'
+import './donnation.css'
 
-export default function FundRaise({
-  title,
+export default function donnation({
+  titre,
   id,
   description,
-  current,
-  goal,
+  actuel,
+  objectif,
   closeModal,
   onChange,
   onSubmit,
   modalVisible,
   openModal,
-  userIsFundRaiseCreator,
-  withdraw,
+  userdonCreateur,
+  retirer,
   active
 }) {
   return (
     <Container fluid="lg">
-      <h1 className="mb-3">{title}</h1>
+      <h1 className="mb-3">{titre}</h1>
       {
-        userIsFundRaiseCreator && active ?
+        userdonCreateur && active ?
           <Row>
             <Col className="p-2">
-              <Button variant="danger" onClick={withdraw}>Withdraw</Button>
+              <Button variant="danger" onClick={retirer}>retirer</Button>
             </Col>
           </Row> :
           null
@@ -40,9 +40,9 @@ export default function FundRaise({
         {
           active ?
           <Col>
-            <div className="fund-raise-side-panel mt-2 mt-lg-0">
-              <div className="fund-raise-goal">{current} raised of {goal}...</div>
-              <div className="fund-raise-donate-button-container">
+            <div className="don-side-panel mt-2 mt-lg-0">
+              <div className="don-objectif">{actuel} don pour {objectif}...</div>
+              <div className="donate-button-container">
                 <Button variant="primary" onClick={openModal}>Donate</Button>
               </div>
             </div>
@@ -74,19 +74,19 @@ function DonateModal({
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={onSubmit}>
-          <Form.Group controlId="amount">
-            <Form.Label>Amount (ETH)</Form.Label>
-            <Form.Control type="text" name="amount" onChange={onChange}/>
+          <Form.Group controlId="montant">
+            <Form.Label>montant (ETH)</Form.Label>
+            <Form.Control type="text" name="montant" onChange={onChange}/>
           </Form.Group>
-          <Button variant="secondary" onClick={onClose} className="me-1 mt-1">Close</Button>
-          <Button variant="primary" type="submit" className="mt-1">Submit</Button>
+          <Button variant="secondary" onClick={onClose} className="me-1 mt-1">Fermer</Button>
+          <Button variant="primary" type="submit" className="mt-1">Soumettre</Button>
         </Form>
       </Modal.Body>
     </Modal>
   )
 }
 
-export function FundRaiseWrapper() {
+export function donnationWrapper() {
   const [donateForm, setDonateForm] = useState('')
   const [loading, setLoading] = useState(true)
   const [uiData, setUiData] = useState({})
@@ -94,7 +94,7 @@ export function FundRaiseWrapper() {
   const { id } = useParams()
 
   const { dependencies } = useContext(AppContext)
-  const { fundRaise, account, web3 } = dependencies
+  const { donnation, account, web3 } = dependencies
 
   useEffect(() => {
     (async function() {
@@ -103,15 +103,15 @@ export function FundRaiseWrapper() {
   }, [])
   
   useEffect(() => {
-    if (uiData.current) {
+    if (uiData.actuel) {
       setupDonateListener()
       setupWithdrawListener()
       setLoading(false)
     }
   }, [uiData])
 
-  async function getFundRaiseData() {
-    return await fundRaise.methods.fundRaises(id).call()
+  async function getdonData() {
+    return await donnation.methods.donnations(id).call()
   }
 
   function onChange(event) {
@@ -120,42 +120,42 @@ export function FundRaiseWrapper() {
 
   async function onSubmit(event) {
     event.preventDefault()
-    await fundRaise.methods.donate(id).send({ from: account, value: web3.utils.toWei(donateForm, 'ether') })
+    await donnation.methods.donate(id).send({ from: account, value: web3.utils.toWei(donateForm, 'ether') })
   }
 
   function setupDonateListener() {
-    fundRaise.events.Donated({}, (error, contractEvent) => {
+    donnation.events.Donated({}, (error, contractEvent) => {
       const { amount } = contractEvent.returnValues
-      const updatedTotal = parseInt(amount) + parseInt(uiData.current) + ''
-      setUiData(previousState => ({ ...previousState, current: updatedTotal, modalVisible: false }))
+      const updatedTotal = parseInt(amount) + parseInt(uiData.actuel) + ''
+      setUiData(previousState => ({ ...previousState, actuel: updatedTotal, modalVisible: false }))
     })
   }
   
   function setupWithdrawListener() {
-    fundRaise.events.Withdraw({}, (error, contractEvent) => {
+    donnation.events.Withdraw({}, (error, contractEvent) => {
       setUiData(previousState => ({ ...previousState, status: false }))
     })
   }
 
-  async function withdraw() {
-    await fundRaise.methods.withdraw(id).send({ from: account })
+  async function retirer() {
+    await donnation.methods.retirer(id).send({ from: account })
   }
 
   return (
     !loading ?
-      <FundRaise
-        title={uiData.title}
+      <donnation
+        titre={uiData.titre}
         id={id}
         description={uiData.description}
-        current={web3.utils.fromWei(uiData.current, 'ether')}
-        goal={web3.utils.fromWei(uiData.goal, 'ether')}
+        actuel={web3.utils.fromWei(uiData.actuel, 'ether')}
+        objectif={web3.utils.fromWei(uiData.objectif, 'ether')}
         closeModal={() => setUiData(previousState => ({ ...previousState, modalVisible: false }))}
         onChange={onChange}
         onSubmit={onSubmit}
         modalVisible={uiData.modalVisible}
         openModal={() => setUiData(previousState => ({ ...previousState, modalVisible: true }))}
-        userIsFundRaiseCreator={uiData.creator === account}
-        withdraw={withdraw}
+        userdonCreateur={<uiData className="createur"></uiData> === account}
+        retirer={retirer}
         active={uiData.status}
       /> :
       <div>loading....</div>
